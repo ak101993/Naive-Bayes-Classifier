@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import re
 email_data=pd.read_csv('spam.csv',encoding='latin1')
 email_data=email_data[['v1','v2']]
 # print(email_data.head())
@@ -38,6 +38,8 @@ for email in email_data:
     if email[0]=='spam':
         spam+=1
     total+=1
+    email[1]=re.sub('[^a-zA-Z]',' ', email[1])
+    print(email[1])
     bagOfWordsClassification(email[0],email[1])
 print(total,'    ',spam)
 pA=spam/total
@@ -46,11 +48,13 @@ notpA=(total-spam)/total
 
 def probalityofWord(spam,word):
     if spam:
-        probaliltiy_postive=postive_spam[word]/total_postive
-        return probaliltiy_postive
+        if postive_spam.get(word,0.01):
+            probaliltiy_postive=postive_spam.get(word,0.01)/total_postive
+            return probaliltiy_postive
     else:
-        probaliltiy_negative=negative_spam[word]/total_negative
-        return probaliltiy_negative
+        if negative_spam.get(word,0.01):
+            probaliltiy_negative=negative_spam.get(word,0.01)/total_negative
+            return probaliltiy_negative
 
 def totalProbability(spam,email_content):
     total_probility=1
@@ -60,8 +64,7 @@ def totalProbability(spam,email_content):
 
 def classify(email):
 
-    isSpam=0
-    # isSpam=pA*totalProbability(True,email)
+    isSpam=pA*totalProbability(True,email)
     notSpam=notpA*totalProbability(False,email)
 
     if isSpam>notSpam:
@@ -69,6 +72,6 @@ def classify(email):
     else:
         print('Not Spam')
 
-classify('watching')
+classify("WINNER As a valued network customer you have been selected to receive prize reward To claim call Claim code KL Valid hours only")
 print(total_negative)
 print(total_postive)
